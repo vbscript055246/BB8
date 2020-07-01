@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView mBlueIv;
     Button mOnBtn, mConnectBtn;
-    TextView mShowText;
+    TextView mShowText, Ho, Vi;
     JoystickView joystic;
 
     BluetoothAdapter mBlueAdapter;
@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     Handler mHandler;
     ConnectedThread btt = null;
 
-    int pre_horizon_signal_index = 9,pre_vertical_signal_index = 9;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
         mOnBtn        = findViewById(R.id.onBtn);
         mConnectBtn   = findViewById(R.id.connectBtn);
         mShowText     = findViewById(R.id.showText);
+        Ho     = findViewById(R.id.Ho);
+        Vi     = findViewById(R.id.Vi);
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -65,33 +66,29 @@ public class MainActivity extends AppCompatActivity {
         else mBlueIv.setImageResource(R.drawable.bluetooth_close);
 
         joystic.setOnMoveListener(new JoystickView.OnMoveListener() {
-            @Override
+            byte[] a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
+            byte[] b = {21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39};
             public void onMove(int angle, int strength) {
-                String servo1_signal = "abcdefghijklmnopqrs";
-                String servo2_signal = "ABCDEFGHIJKLMNOPQRS";
-
-                // 角度換成弧度
-                double radian = (float)angle/180*Math.PI;
-
-                //       選擇的訊號       =  分量強度?%*9 (分9段變化) + 位移到中間(馬達不轉動是90)配合arduino的code
-                int new_horizon_signal_index = (int)Math.round(strength*Math.cos(radian)/100*9)+9;
-                int new_vertical_signal_index = (int) Math.round(strength*Math.sin(radian)/100*9)+9;
-                // 變數轉型成可以傳送的 byte array
-                byte[] horizon_signal =  {(byte)servo1_signal.charAt(new_horizon_signal_index)};
-                byte[] vertical_signal = {(byte)servo2_signal.charAt(new_vertical_signal_index)};
-                mShowText.setText("水平訊號:" + new_horizon_signal_index + "\n垂直訊號:" + new_vertical_signal_index);
                 if(btt == null){
+                    mShowText.setText("角度: " + angle + ", 強度: " + strength);
                     return;
                 }
-                if (new_horizon_signal_index != pre_horizon_signal_index)
-                    btt.write(horizon_signal);
-                if (new_vertical_signal_index != pre_vertical_signal_index)
-                    btt.write(vertical_signal);
-                pre_horizon_signal_index = new_horizon_signal_index;
-                pre_vertical_signal_index = new_vertical_signal_index;
+                int H_i = (int) Math.round(strength*Math.cos((float) angle/180*3.14159265358)*9/100)+9;
+                int V_i = (int) Math.round(strength*Math.sin((float) angle/180*3.14159265358)*9/100)+9;
+                byte[] H = {a[H_i]};
+                byte[] V = {b[V_i]};
+
+                mShowText.setText("角度: " + angle + ", 強度: " + strength);
+                if(!Ho.getText().toString().equals( "水平分量：" + (H_i-9))){
+                    btt.write(H);
+                    Ho.setText("水平分量：" + (H_i-9));
+                }
+                if(!Vi.getText().toString().equals( "垂直分量：" + (V_i-9))){
+                    btt.write(V);
+                    Vi.setText("垂直分量：" + (V_i-9));
+                }
             }
         }, 50);
-
 
         //on btn click
         mOnBtn.setOnClickListener(new View.OnClickListener() {
