@@ -11,7 +11,6 @@
 
 
     <!--Bluetooth icon (on/off)-->
-
     <ImageView
         android:id="@+id/bluetoothIv"
         android:layout_width="100dp"
@@ -46,21 +45,6 @@
         android:minWidth="200dp" />
 
     <!--Joystick controller-->
-
-    <TextView
-        android:id="@+id/Ho"
-        style="@style/cusTheme"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="200dp" />
-
-    <TextView
-        android:id="@+id/Vi"
-        style="@style/cusTheme"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="200dp" />
-
     <io.github.controlwear.virtual.joystick.android.JoystickView
         android:id="@+id/joyStick"
         android:layout_width="wrap_content"

@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView mBlueIv;
     Button mOnBtn, mConnectBtn;
-    TextView mShowText, Ho, Vi;
+    TextView mShowText;
     JoystickView joystic;
 
     BluetoothAdapter mBlueAdapter;
@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity {
         mOnBtn        = findViewById(R.id.onBtn);
         mConnectBtn   = findViewById(R.id.connectBtn);
         mShowText     = findViewById(R.id.showText);
-        Ho     = findViewById(R.id.Ho);
-        Vi     = findViewById(R.id.Vi);
 
         mBlueAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -66,29 +64,26 @@ public class MainActivity extends AppCompatActivity {
         else mBlueIv.setImageResource(R.drawable.bluetooth_close);
 
         joystic.setOnMoveListener(new JoystickView.OnMoveListener() {
-            byte[] a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-            byte[] b = {21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39};
+            @Override
             public void onMove(int angle, int strength) {
                 if(btt == null){
                     mShowText.setText("角度: " + angle + ", 強度: " + strength);
                     return;
                 }
-                int H_i = (int) Math.round(strength*Math.cos((float) angle/180*3.14159265358)*9/100)+9;
-                int V_i = (int) Math.round(strength*Math.sin((float) angle/180*3.14159265358)*9/100)+9;
-                byte[] H = {a[H_i]};
-                byte[] V = {b[V_i]};
-
-                mShowText.setText("角度: " + angle + ", 強度: " + strength);
-                if(!Ho.getText().toString().equals( "水平分量：" + (H_i-9))){
-                    btt.write(H);
-                    Ho.setText("水平分量：" + (H_i-9));
-                }
-                if(!Vi.getText().toString().equals( "垂直分量：" + (V_i-9))){
-                    btt.write(V);
-                    Vi.setText("垂直分量：" + (V_i-9));
+                String msg = "";
+                String S = (strength > 75) ? "B" : (strength > 40) ? "S" : "0";
+                String vectorV = (angle >= 22.5 && angle <= 157.5)? "1":(angle >= 202.5 && angle <= 337.5)? "2": "N";
+                String vectorH = ((angle > 0 && angle <= 67.5)||(angle <=360 && angle >= 292.5))? "3":(angle >= 112.5 && angle <= 247.5)? "4": "M";
+                msg = vectorV + vectorH + S;
+                String tmp = mShowText.getText().toString();
+                if(!tmp.equals(msg)){
+                    btt.write(vectorV.getBytes());
+                    btt.write(vectorH.getBytes());
+                    btt.write(S.getBytes());
+                    mShowText.setText(msg);
                 }
             }
-        }, 50);
+        }, 4);
 
         //on btn click
         mOnBtn.setOnClickListener(new View.OnClickListener() {
